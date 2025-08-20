@@ -1,0 +1,6 @@
+"http://{all}/": { type: redirect, to: "https://www.{all}/" }
+"https://{all}/": { type: redirect, to: "https://www.{all}/" }
+"https://www.{all}/": { type: upstream, upstream: "web:http", primary: true }
+
+"https://www.{all}/bundles": { type: upstream, upstream: "api:http", cache: { enabled: false } }
+"https://www.{all}/api": { type: upstream, upstream: "api:http", cache: { enabled: false } }
