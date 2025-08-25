@@ -1,0 +1,81 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: symfony
+      POSTGRES_PASSWORD: symfony
+      POSTGRES_DB: app
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U symfony"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: postgresql://symfony:symfony@db:5432/app?serverVersion=13&charset=utf8
+    volumes:
+      - ./api:/var/www/html:cached
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php -v || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    image: node:20-alpine
+    working_dir: /app
+    environment:
+      # Expose Next.js dev server on 3000 for Caddy
+      PORT: 3000
+    command: sh -lc "npm run dev"
+    volumes:
+      - ./web:/app:cached
+    healthcheck:
+      test: ["CMD-SHELL", "node -v && [ -f package.json ]"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mercure:
+    image: dunglas/mercure:v0.15
+    environment:
+      MERCURE_PUBLISHER_JWT_KEY: "!ChangeMe!"
+      MERCURE_SUBSCRIBER_JWT_KEY: "!ChangeMe!"
+      MERCURE_EXTRA_DIRECTIVES: |
+        cors_allowed_origins *
+        anonymous
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./api:/srv/api:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
+      mercure:
+        condition: service_started
+
+volumes:
+  db-data:

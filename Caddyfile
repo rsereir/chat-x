@@ -1,0 +1,28 @@
+{
+	# Mode dev, logs plus verbeux
+	autosave off
+}
+
+:80 {
+	encode zstd gzip
+
+	# Next.js par défaut
+	handle {
+		reverse_proxy web:3000
+	}
+
+	# API Symfony sur /api
+	handle_path /api* {
+		root * /srv/api/public
+		php_fastcgi api:9000
+		file_server
+	}
+
+	# Mercure Hub
+	handle /.well-known/mercure* {
+		reverse_proxy mercure:80
+	}
+
+	# Health
+	respond /healthz 200
+}

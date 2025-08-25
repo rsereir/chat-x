@@ -91,7 +91,6 @@ web:
       env
       yarn install
       yarn build
-      yarn postbuild
 
   web:
     commands:
