@@ -1,0 +1,33 @@
+export N_PREFIX=$HOME/.n
+export PATH=$N_PREFIX/bin:$PATH
+
+# Retrieve the platform project for dynamic values
+PLATFORM_PROJECT_VALUE=$(echo $PLATFORM_PROJECT)
+
+# Set dynamic CORS_ALLOW_ORIGIN for NelmioBundle
+export CORS_ALLOW_ORIGIN="^(https://)?(.*${PLATFORM_PROJECT_VALUE}.*.platformsh.site|www\.treeview\.app|treeview\.app)$"
+export TRUSTED_HOSTS="^(https://)?(.*${PLATFORM_PROJECT_VALUE}.*.platformsh.site|www\.treeview\.app|treeview\.app)$"
+export TRUSTED_PROXIES="^(https://)?(.*${PLATFORM_PROJECT_VALUE}.*.platformsh.site|www\.treeview\.app|treeview\.app)$"
+
+# Admin Site Name
+export API_SITE_NAME="API Treeview"
+
+export APP_SECRET=$(echo $PLATFORM_PROJECT_ENTROPY)
+
+# Décodage des PLATFORM_ROUTES
+PLATFORM_ROUTES_DECODED=$(echo $PLATFORM_ROUTES | base64 --decode)
+
+# Check if treeview.app is available in PLATFORM_ROUTES
+TREEVIEW_ROUTE=$(echo $PLATFORM_ROUTES_DECODED | jq -r 'to_entries[] | select(.key | contains("treeview.app")) | .key')
+
+if [ -n "$TREEVIEW_ROUTE" ]; then
+  # Use treeview.app if available
+  MERCURE_ROUTE=$TREEVIEW_ROUTE
+else
+  # Else use 'mercure'
+  MERCURE_ROUTE=$(echo $PLATFORM_ROUTES_DECODED | jq -r 'to_entries[] | select(.value.id == "mercure") | .key')
+fi
+
+export MERCURE_URL="${MERCURE_ROUTE}/.well-known/mercure"
+export MERCURE_PUBLIC_URL="${MERCURE_ROUTE}/.well-known/mercure"
+export MERCURE_PUBLISH_URL="${MERCURE_ROUTE}/.well-known/mercure"
