@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[UniqueEntity(
     fields: ['username'],
-    message: 'Ce nom d\'utilisateur est déjà pris, veuillez en choisir un autre.'
+    message: 'This username is already taken, please choose another one.'
 )]
 #[ApiResource(
     operations: [
@@ -40,12 +40,12 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     #[Groups(['accounts:register'])]
-    #[Assert\NotBlank(message: 'Le nom d\'utilisateur est obligatoire')]
+    #[Assert\NotBlank(message: 'Username is required')]
     #[Assert\Length(
         min: 3,
         max: 50,
-        minMessage: 'Le nom d\'utilisateur doit faire au moins {{ limit }} caractères',
-        maxMessage: 'Le nom d\'utilisateur ne peut pas dépasser {{ limit }} caractères'
+        minMessage: 'Username must be at least {{ limit }} characters long',
+        maxMessage: 'Username cannot exceed {{ limit }} characters'
     )]
     private ?string $username = null;
 
@@ -65,10 +65,10 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
      * Plain password for registration (not persisted)
      */
     #[Groups(['accounts:register'])]
-    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire')]
+    #[Assert\NotBlank(message: 'Password is required')]
     #[Assert\Length(
         min: 6,
-        minMessage: 'Le mot de passe doit faire au moins {{ limit }} caractères'
+        minMessage: 'Password must be at least {{ limit }} characters long'
     )]
     public ?string $plainPassword = null;
 
