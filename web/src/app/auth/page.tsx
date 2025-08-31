@@ -1,0 +1,70 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Layout, Typography, Space, Tabs } from 'antd'
+import { MessageOutlined } from '@ant-design/icons'
+import { isAuthenticated } from '@/utils/auth'
+import Card from '@/components/ui/card'
+import LoginForm from '@/components/login/form'
+import RegisterForm from '@/components/register/form'
+
+const { Header, Content } = Layout
+const { Title } = Typography
+
+export default function AuthPage() {
+  const router = useRouter()
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login')
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      router.push('/')
+    }
+  }, [router])
+
+  const handleSuccess = () => {
+    router.push('/')
+  }
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      <Header
+        style={{
+          background: 'rgba(255,255,255,0.6)',
+          borderBottom: '1px solid rgba(15,23,42,0.06)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 16px',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
+        }}
+      >
+        <Space align="center">
+          <MessageOutlined style={{ color: '#0ea5e9' }} />
+          <Title level={4} style={{ margin: 0 }}>ChatX</Title>
+        </Space>
+      </Header>
+      <Content style={{ display: 'grid', placeItems: 'center', minHeight: 'calc(100vh - 64px)', padding: 24 }}>
+        <Card className="glass" style={{ width: 420 }}>
+          <Tabs
+            activeKey={authTab}
+            onChange={(k) => setAuthTab(k as 'login' | 'signup')}
+            items={[
+              {
+                key: 'login',
+                label: 'Log In',
+                children: <LoginForm onSuccess={handleSuccess} />
+              },
+              {
+                key: 'signup',
+                label: "Create new account",
+                children: <RegisterForm onSuccess={handleSuccess} />
+              }
+            ]}
+          />
+        </Card>
+      </Content>
+    </Layout>
+  )
+}
