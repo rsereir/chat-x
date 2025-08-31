@@ -33,16 +33,27 @@ class ApiClient {
         url += `?${params}`
       }
 
-      const headers: HeadersInit = {
+      const headers = new Headers({
         'Content-Type': 'application/json',
-        ...fetchOptions.headers,
+      })
+
+      if (fetchOptions.headers) {
+        if (fetchOptions.headers instanceof Headers) {
+          fetchOptions.headers.forEach((value, key) => headers.set(key, value))
+        } else if (Array.isArray(fetchOptions.headers)) {
+          fetchOptions.headers.forEach(([key, value]) => headers.set(key, value))
+        } else {
+          Object.entries(fetchOptions.headers).forEach(([key, value]) => {
+            headers.set(key, value)
+          })
+        }
       }
 
       if (!token && isAuthenticated()) {
         const authHeaders = getAuthHeaders()
-        Object.assign(headers, authHeaders)
+        Object.entries(authHeaders).forEach(([key, value]) => headers.set(key, value))
       } else if (token) {
-        headers.Authorization = `Bearer ${token}`
+        headers.set('Authorization', `Bearer ${token}`)
       }
 
       const response = await fetch(url, {
