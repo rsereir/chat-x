@@ -41,7 +41,7 @@ services:
       PORT: 3000
       # API URL pour les appels côté client (via Caddy)
       NEXT_PUBLIC_API_URL: http://localhost/api
-    command: sh -lc "rm -rf node_modules package-lock.json && npm install && npm run dev"
+    command: sh -lc "rm -rf node_modules package-lock.json && yarn install && yarn dev"
     volumes:
       - ./web:/app:cached
     healthcheck:
