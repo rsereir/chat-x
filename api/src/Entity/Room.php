@@ -2,30 +2,63 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Repository\RoomRepository;
+use App\State\RoomStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RoomRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['rooms:list']]
+        ),
+        new Post(
+            normalizationContext: ['groups' => ['rooms:view']],
+            denormalizationContext: ['groups' => ['rooms:new']],
+            processor: RoomStateProcessor::class
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['rooms:view']]
+        )
+    ]
+)]
 class Room
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['rooms:list', 'rooms:view'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 15)]
+    #[Groups(['rooms:list', 'rooms:view', 'rooms:new'])]
+    #[Assert\NotBlank(message: 'Room name is required')]
+    #[Assert\Length(
+        min: 2,
+        max: 15,
+        minMessage: 'Room name must be at least {{ limit }} characters long',
+        maxMessage: 'Room name cannot exceed {{ limit }} characters'
+    )]
     private ?string $name = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['rooms:list', 'rooms:view'])]
     private ?Account $owner = null;
 
     /**
      * @var Collection<int, Account>
      */
     #[ORM\ManyToMany(targetEntity: Account::class, inversedBy: 'rooms')]
+    #[Groups(['rooms:view'])]
     private Collection $members;
 
     public function __construct()
