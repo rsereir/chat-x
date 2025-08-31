@@ -39,7 +39,9 @@ services:
     environment:
       # Expose Next.js dev server on 3000 for Caddy
       PORT: 3000
-    command: sh -lc "npm run dev"
+      # API URL pour les appels côté client (via Caddy)
+      NEXT_PUBLIC_API_URL: http://localhost/api
+    command: sh -lc "rm -rf node_modules package-lock.json && npm install && npm run dev"
     volumes:
       - ./web:/app:cached
     healthcheck:
@@ -48,8 +50,10 @@ services:
       timeout: 5s
       retries: 10
 
+
   mercure:
     image: dunglas/mercure:v0.15
+    platform: linux/amd64
     environment:
       MERCURE_PUBLISHER_JWT_KEY: "!ChangeMe!"
       MERCURE_SUBSCRIBER_JWT_KEY: "!ChangeMe!"
@@ -57,10 +61,10 @@ services:
         cors_allowed_origins *
         anonymous
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      test: ["CMD", "wget", "-qO-", "http://localhost/.well-known/mercure/healthz"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
 
   caddy:
     image: caddy:2-alpine
