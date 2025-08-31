@@ -5,6 +5,14 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    # Trust all proxies for Docker/Caddy setup
+    trusted_proxies: '127.0.0.1,REMOTE_ADDR,172.0.0.0/8'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix']
+
+    # Configure router to not use index.php in URLs
+    router:
+        strict_requirements: null
+
     #esi: true
     #fragments: true
 
