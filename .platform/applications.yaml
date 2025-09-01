@@ -89,7 +89,7 @@ web:
       set -x -e
 
       env
-      yarn install
+      yarn install --production=false --frozen-lockfile
       yarn build
 
   web:
