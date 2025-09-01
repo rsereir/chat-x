@@ -129,7 +129,7 @@ export function getUser(): User | null {
   if (!decoded) return null
 
   return {
-    id: parseInt(decoded.sub) || 0,
+    id: parseInt(decoded.id),
     username: decoded.username,
     roles: decoded.roles || ['ROLE_USER']
   }
