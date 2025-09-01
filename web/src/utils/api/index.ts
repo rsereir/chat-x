@@ -66,13 +66,13 @@ class ApiClient {
       }
 
       const contentType = response.headers.get('Content-Type')
-      if (contentType?.includes('application/json')) {
+      if (contentType?.includes('application/json') || contentType?.includes('application/ld+json')) {
         const data = await response.json()
 
-        if (data['hydra:member']) {
+        if (data['member']) {
           return {
-            data: data['hydra:member'],
-            count: data['hydra:totalItems'],
+            data: data['member'],
+            count: data['totalItems'],
           } as T
         }
 
