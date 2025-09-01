@@ -6,8 +6,10 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
 use App\Repository\RoomRepository;
 use App\State\RoomStateProcessor;
+use App\State\Room\JoinStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,6 +29,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Get(
             normalizationContext: ['groups' => ['rooms:view']]
+        new Patch(
+            uriTemplate: '/rooms/{id}/join',
+            normalizationContext: ['groups' => ['rooms:view']],
+            security: "is_granted('ROLE_USER')",
+            processor: JoinStateProcessor::class
+        ),
         )
     ]
 )]
