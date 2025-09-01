@@ -1,26 +1,83 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #f7f8fb;
+  --foreground: #0f172a;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(1000px 700px at 10% 15%, rgba(37, 99, 235, 0.10), transparent 60%),
+    radial-gradient(900px 600px at 85% 10%, rgba(14, 165, 233, 0.10), transparent 60%),
+    radial-gradient(800px 600px at 50% 90%, rgba(124, 58, 237, 0.08), transparent 60%);
+  filter: blur(12px) saturate(120%);
+  animation: floaty 22s ease-in-out infinite alternate;
+}
+
+.background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.6' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.01'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+}
+
+@keyframes floaty {
+  0% {
+    transform: translateY(-1.5%) translateX(1%);
+  }
+  100% {
+    transform: translateY(1.5%) translateX(-1%);
+  }
+}
+
+/* Light Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Chat bubbles - Light mode */
+.bubble-mine {
+  /* Simplified: flat color, subtle shadow */
+  background: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18);
+}
+
+.bubble-other {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid #e5e7eb;
+}
+
+/* Show user row actions only on hover */
+.user-row .ant-list-item-action {
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+  padding-left: 0;
+  padding-right: 0;
+}
+.user-row:hover .ant-list-item-action {
+  opacity: 1;
 }
