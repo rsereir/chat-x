@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { Input } from "antd";
-import TextArea from "./textarea";
-import Text from "./text";
+import { Input } from "antd"
+import Text from "./text"
+import TextArea from "./textarea"
 
 export default {
   Text,

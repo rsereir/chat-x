@@ -1,16 +1,21 @@
-import { Typography } from "antd";
-import dayjs from "dayjs";
+import { Typography } from "antd"
+import dayjs from "dayjs"
 
-const { Text } = Typography;
+const { Text } = Typography
 
 interface MessageProps {
-  message: ChatMessage;
-  isMine: boolean;
+  message: ChatMessage
+  isMine: boolean
 }
 
 export default function Message({ message, isMine }: MessageProps) {
   return (
-    <div style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: isMine ? "flex-end" : "flex-start",
+      }}
+    >
       <div
         className={isMine ? "bubble-mine" : "bubble-other"}
         style={{
@@ -29,5 +34,5 @@ export default function Message({ message, isMine }: MessageProps) {
         <div>{message.content}</div>
       </div>
     </div>
-  );
+  )
 }

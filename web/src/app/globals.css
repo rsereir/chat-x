@@ -17,9 +17,22 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(1000px 700px at 10% 15%, rgba(37, 99, 235, 0.10), transparent 60%),
-    radial-gradient(900px 600px at 85% 10%, rgba(14, 165, 233, 0.10), transparent 60%),
-    radial-gradient(800px 600px at 50% 90%, rgba(124, 58, 237, 0.08), transparent 60%);
+  background:
+    radial-gradient(
+      1000px 700px at 10% 15%,
+      rgba(37, 99, 235, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 600px at 85% 10%,
+      rgba(14, 165, 233, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 600px at 50% 90%,
+      rgba(124, 58, 237, 0.08),
+      transparent 60%
+    );
   filter: blur(12px) saturate(120%);
   animation: floaty 22s ease-in-out infinite alternate;
 }
@@ -47,7 +60,9 @@ body {
   border: 1px solid rgba(15, 23, 42, 0.06);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 10px 30px rgba(2, 6, 23, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .glass-strong {
@@ -60,14 +75,14 @@ body {
 /* Chat bubbles - Light mode */
 .bubble-mine {
   /* Simplified: flat color, subtle shadow */
-  background: #2563eb !important;
-  color: #ffffff !important;
+  background: #2563eb;
+  color: #ffffff;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18);
 }
 
 .bubble-other {
-  background: #ffffff !important;
-  color: #334155 !important;
+  background: #ffffff;
+  color: #334155;
   border: 1px solid #e5e7eb;
 }
 
