@@ -14,7 +14,7 @@ class ApiClient {
   private baseUrl: string
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_API_URL || "/api"
+    this.baseUrl = baseUrl ?? process.env.NEXT_PUBLIC_API_URL ?? "/api"
   }
 
   private async request<T>(
