@@ -12,7 +12,7 @@ use App\Repository\RoomRepository;
 use App\State\Room\JoinStateProcessor;
 use App\State\Room\KickMemberStateProcessor;
 use App\State\Room\LeaveStateProcessor;
-use App\State\Room\NewRoomStateProcessor;
+use App\State\Room\NewStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             normalizationContext: ['groups' => ['rooms:view']],
             denormalizationContext: ['groups' => ['rooms:new']],
-            processor: NewRoomStateProcessor::class
+            processor: NewStateProcessor::class
         ),
         new Get(
             normalizationContext: ['groups' => ['rooms:view']]
