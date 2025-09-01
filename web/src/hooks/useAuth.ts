@@ -1,7 +1,12 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import { getUser, isAuthenticated, logout as authLogout, type User } from '@/utils/auth'
+import { useEffect, useState } from "react"
+import {
+  logout as authLogout,
+  getUser,
+  isAuthenticated,
+  type User,
+} from "@/utils/auth"
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)

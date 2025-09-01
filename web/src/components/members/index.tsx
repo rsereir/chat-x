@@ -1,32 +1,31 @@
-import { List, Space, Avatar, Empty, App } from "antd";
-import { Typography } from "antd";
-import Card from "@/components/ui/card";
-import Button from "@/components/ui/button";
-import Tag from "@/components/ui/tag";
-import { UserOutlined, CloseOutlined } from "@ant-design/icons";
-import {useAuth} from "@/hooks/useAuth";
-import { api } from "@/utils/api";
-import { useRoom } from "@/contexts/RoomContext";
+import { CloseOutlined, UserOutlined } from "@ant-design/icons"
+import { App, Avatar, Empty, List, Space, Typography } from "antd"
+import Button from "@/components/ui/button"
+import Card from "@/components/ui/card"
+import Tag from "@/components/ui/tag"
+import { useRoom } from "@/contexts/RoomContext"
+import { useAuth } from "@/hooks/useAuth"
+import { api } from "@/utils/api"
 
-const { Text } = Typography;
+const { Text } = Typography
 
 export default function Members() {
-  const { user } = useAuth();
-  const { message } = App.useApp();
-  const { currentRoom, mutate } = useRoom();
+  const { user } = useAuth()
+  const { message } = App.useApp()
+  const { currentRoom, mutate } = useRoom()
 
   const handleKick = async (userId: string) => {
-    if (!currentRoom) return;
+    if (!currentRoom) return
 
     try {
-      await api.delete(`/rooms/${currentRoom.id}/kick/${userId}`);
-      message.success('User removed from channel');
-      mutate();
+      await api.delete(`/rooms/${currentRoom.id}/kick/${userId}`)
+      message.success("User removed from channel")
+      mutate()
     } catch (error) {
-      console.error('Error kicking user:', error);
-      message.error('Error removing user');
+      console.error("Error kicking user:", error)
+      message.error("Error removing user")
     }
-  };
+  }
 
   return (
     <div style={{ padding: 16 }}>
@@ -35,11 +34,13 @@ export default function Members() {
         title={
           <Space size={8}>
             <span>Users</span>
-            {currentRoom ? <Tag color="blue">{currentRoom?.members?.length}</Tag> : null}
+            {currentRoom ? (
+              <Tag color="blue">{currentRoom?.members?.length}</Tag>
+            ) : null}
           </Space>
         }
         className="glass"
-        styles={{ body: { background: 'transparent' } }}
+        styles={{ body: { background: "transparent" } }}
         variant="outlined"
       >
         {currentRoom ? (
@@ -47,8 +48,8 @@ export default function Members() {
             size="small"
             dataSource={currentRoom?.members ?? []}
             renderItem={(u) => {
-              const isAdminSelf = currentRoom?.owner?.id === user?.id;
-              const isAdminUser = currentRoom?.owner?.id === u?.id;
+              const isAdminSelf = currentRoom?.owner?.id === user?.id
+              const isAdminUser = currentRoom?.owner?.id === u?.id
 
               return (
                 <List.Item
@@ -76,16 +77,19 @@ export default function Members() {
                     {isAdminUser ? <Tag color="gold">admin</Tag> : null}
                   </Space>
                 </List.Item>
-              );
+              )
             }}
             locale={{ emptyText: "No users" }}
           />
         ) : (
-          <div style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
-            <Empty description="Join a channel" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <div style={{ display: "grid", placeItems: "center", padding: 24 }}>
+            <Empty
+              description="Join a channel"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
           </div>
         )}
       </Card>
     </div>
-  );
+  )
 }

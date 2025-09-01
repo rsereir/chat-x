@@ -1,8 +1,7 @@
-"use client";
-import React from "react";
-import { Button as AntdButton } from "antd";
-import type { ButtonProps } from "antd";
+"use client"
+import type { ButtonProps } from "antd"
+import { Button as AntdButton } from "antd"
 
 export default function Button(props: ButtonProps) {
-  return <AntdButton {...props} />;
+  return <AntdButton {...props} />
 }

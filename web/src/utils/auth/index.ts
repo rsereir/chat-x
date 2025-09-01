@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 interface DecodedToken {
   sub: string
@@ -6,7 +6,7 @@ interface DecodedToken {
   exp: number
   iat: number
   roles?: string[]
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface User {
@@ -30,31 +30,34 @@ interface AuthResponse {
   user?: User
 }
 
-const TOKEN_KEY = 'token'
+const TOKEN_KEY = "token"
 
 function base64UrlDecode(str: string): string {
-  const base64 = str.replace(/-/g, '+').replace(/_/g, '/')
-  const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=')
+  const base64 = str.replace(/-/g, "+").replace(/_/g, "/")
+  const padded = base64.padEnd(
+    base64.length + ((4 - (base64.length % 4)) % 4),
+    "=",
+  )
   return atob(padded)
 }
 
 function parseJwt(token: string): DecodedToken {
   try {
-    const parts = token.split('.')
+    const parts = token.split(".")
     if (parts.length !== 3) {
-      throw new Error('Invalid JWT format')
+      throw new Error("Invalid JWT format")
     }
 
     const payload = parts[1]
     const decoded = base64UrlDecode(payload)
     return JSON.parse(decoded)
-  } catch (error) {
-    throw new Error('Failed to decode JWT token')
+  } catch (_error) {
+    throw new Error("Failed to decode JWT token")
   }
 }
 
 function getStoredToken(): string | null {
-  if (typeof window === 'undefined') return null
+  if (typeof window === "undefined") return null
 
   try {
     return localStorage.getItem(TOKEN_KEY)
@@ -64,22 +67,22 @@ function getStoredToken(): string | null {
 }
 
 function setStoredToken(token: string): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return
 
   try {
     localStorage.setItem(TOKEN_KEY, token)
   } catch (error) {
-    console.error('Failed to store token:', error)
+    console.error("Failed to store token:", error)
   }
 }
 
 function removeStoredToken(): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return
 
   try {
     localStorage.removeItem(TOKEN_KEY)
   } catch (error) {
-    console.error('Failed to remove token:', error)
+    console.error("Failed to remove token:", error)
   }
 }
 
@@ -119,9 +122,9 @@ export function isTokenValid(token?: string): boolean {
 }
 
 export function isAuthenticated(): boolean {
-  if (typeof window === 'undefined') return false
+  if (typeof window === "undefined") return false
 
-  return isTokenValid() || !!localStorage.getItem('jwt')
+  return isTokenValid() || !!localStorage.getItem("jwt")
 }
 
 export function getUser(): User | null {
@@ -129,9 +132,9 @@ export function getUser(): User | null {
   if (!decoded) return null
 
   return {
-    id: parseInt(decoded.id),
+    id: parseInt(decoded.id, 10),
     username: decoded.username,
-    roles: decoded.roles || ['ROLE_USER']
+    roles: decoded.roles || ["ROLE_USER"],
   }
 }
 
@@ -143,10 +146,10 @@ export function hasRole(role: string): boolean {
 export function logout(): void {
   removeToken()
 
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('jwt')
-    localStorage.removeItem('profile')
-    window.location.href = '/auth'
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("jwt")
+    localStorage.removeItem("profile")
+    window.location.href = "/auth"
   }
 }
 
@@ -157,15 +160,17 @@ export function getAuthHeaders(): Record<string, string> {
   }
 
   return {
-    Authorization: `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
   }
 }
 
-export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
+export const login = async (
+  credentials: LoginCredentials,
+): Promise<AuthResponse> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(credentials),
   })
@@ -181,26 +186,28 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     setToken(data.token)
 
     try {
-      const payload = JSON.parse(atob(data.token.split('.')[1]))
+      const payload = JSON.parse(atob(data.token.split(".")[1]))
       const user: User = {
         id: payload.sub || payload.user_id,
         username: payload.username,
-        roles: payload.roles || ['ROLE_USER']
+        roles: payload.roles || ["ROLE_USER"],
       }
       data.user = user
     } catch (e) {
-      console.warn('Could not decode JWT token', e)
+      console.warn("Could not decode JWT token", e)
     }
   }
 
   return data
 }
 
-export const register = async (credentials: RegisterCredentials): Promise<AuthResponse> => {
+export const register = async (
+  credentials: RegisterCredentials,
+): Promise<AuthResponse> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(credentials),
   })
@@ -208,31 +215,43 @@ export const register = async (credentials: RegisterCredentials): Promise<AuthRe
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
     if (error.violations) {
-      const messages = error.violations.map((v: any) => v.message).join(', ')
+      const messages = error.violations
+        .map((v: { message: string }) => v.message)
+        .join(", ")
       throw new Error(messages)
     }
     throw new Error(error.message || `Registration failed: ${response.status}`)
   }
 
-  const data: any = await response.json()
+  const data = (await response.json()) as {
+    token?: string
+    JWTToken?: string
+    message?: string
+  }
 
   if (data.token || data.JWTToken) {
     const token = data.token || data.JWTToken
     setToken(token)
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
+      const payload = JSON.parse(atob(token.split(".")[1]))
       data.user = {
         id: payload.sub || payload.user_id,
         username: payload.username,
-        roles: payload.roles || ['ROLE_USER']
+        roles: payload.roles || ["ROLE_USER"],
       }
     } catch (e) {
-      console.warn('Could not decode JWT token', e)
+      console.warn("Could not decode JWT token", e)
     }
   }
 
   return data
 }
 
-export type { DecodedToken, User, LoginCredentials, RegisterCredentials, AuthResponse }
+export type {
+  DecodedToken,
+  User,
+  LoginCredentials,
+  RegisterCredentials,
+  AuthResponse,
+}
