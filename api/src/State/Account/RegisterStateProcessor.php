@@ -1,6 +1,6 @@
 <?php
 
-namespace App\State;
+namespace App\State\Account;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -8,7 +8,7 @@ use App\Entity\Account;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-final class AccountProcessor implements ProcessorInterface
+final class RegisterStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,

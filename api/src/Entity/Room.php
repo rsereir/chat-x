@@ -3,15 +3,16 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\RoomRepository;
-use App\State\RoomStateProcessor;
 use App\State\Room\JoinStateProcessor;
-use App\State\Room\LeaveStateProcessor;
 use App\State\Room\KickMemberStateProcessor;
+use App\State\Room\LeaveStateProcessor;
+use App\State\Room\NewRoomStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,10 +28,16 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             normalizationContext: ['groups' => ['rooms:view']],
             denormalizationContext: ['groups' => ['rooms:new']],
-            processor: RoomStateProcessor::class
+            processor: NewRoomStateProcessor::class
         ),
         new Get(
             normalizationContext: ['groups' => ['rooms:view']]
+        ),
+        new Delete(
+            uriTemplate: '/rooms/{id}/kick/{memberId}',
+            security: "is_granted('ROLE_USER') and object.getOwner() == user",
+            processor: KickMemberStateProcessor::class
+        ),
         new Patch(
             uriTemplate: '/rooms/{id}/join',
             normalizationContext: ['groups' => ['rooms:view']],
@@ -75,7 +82,7 @@ class Room
      * @var Collection<int, Account>
      */
     #[ORM\ManyToMany(targetEntity: Account::class, inversedBy: 'rooms')]
-    #[Groups(['rooms:view'])]
+    #[Groups(['rooms:view', 'rooms:list'])]
     private Collection $members;
 
     public function __construct()
