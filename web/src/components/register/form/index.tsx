@@ -15,7 +15,7 @@ export default function Form({ onSuccess }: FormProps) {
   const { message } = App.useApp()
   const [loading, setLoading] = useState(false)
 
-  const doSignup = async (values: { username: string; password: string }) => {
+  const handleRegister = async (values: { username: string; password: string }) => {
     setLoading(true)
     try {
       await register({ username: values.username, plainPassword: values.password })
@@ -30,15 +30,15 @@ export default function Form({ onSuccess }: FormProps) {
   }
 
   return (
-    <AntdForm layout="vertical" onFinish={doSignup}>
-      <AntdForm.Item 
-        name="username" 
-        label="Username" 
+    <AntdForm layout="vertical" onFinish={handleRegister}>
+      <AntdForm.Item
+        name="username"
+        label="Username"
         rules={[
           { required: true, min: 3 },
-          { 
-            pattern: /^[a-zA-Z0-9._]+$/, 
-            message: 'Username can only contain letters, numbers, dots and underscores' 
+          {
+            pattern: /^[a-zA-Z0-9._]+$/,
+            message: 'Username can only contain letters, numbers, dots and underscores'
           }
         ]}
       >
