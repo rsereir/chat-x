@@ -39,7 +39,7 @@ export function RoomProvider({ children }: RoomProviderProps) {
       value={{
         currentRoomId,
         setCurrentRoomId,
-        currentRoom: currentRoom || null,
+        currentRoom: (currentRoom as Room) || null,
         isLoading,
         error,
         mutate,

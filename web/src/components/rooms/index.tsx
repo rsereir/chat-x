@@ -154,7 +154,7 @@ export default function Rooms() {
                     </Tag>
                   </Badge>
                   {hasNewMessage && !isActive && (
-                    <Tag color="red" size="small">
+                    <Tag color="red">
                       new
                     </Tag>
                   )}

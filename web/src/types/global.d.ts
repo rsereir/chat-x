@@ -18,6 +18,6 @@ declare global {
     room: Room
     author: User
     content: string
-    at: number
+    createdAt: string
   }
 }

@@ -26,7 +26,9 @@ interface RegisterCredentials {
 }
 
 interface AuthResponse {
-  token: string
+  token?: string
+  JWTToken?: string
+  message?: string
   user?: User
 }
 
@@ -132,7 +134,7 @@ export function getUser(): User | null {
   if (!decoded) return null
 
   return {
-    id: parseInt(decoded.id, 10),
+    id: parseInt(decoded.id as string, 10),
     username: decoded.username,
     roles: decoded.roles || ["ROLE_USER"],
   }
@@ -227,25 +229,28 @@ export const register = async (
     token?: string
     JWTToken?: string
     message?: string
+    user?: User
   }
 
   if (data.token || data.JWTToken) {
     const token = data.token || data.JWTToken
-    setToken(token)
+    if (token) {
+      setToken(token)
 
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]))
-      data.user = {
-        id: payload.sub || payload.user_id,
-        username: payload.username,
-        roles: payload.roles || ["ROLE_USER"],
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]))
+        data.user = {
+          id: payload.sub || payload.user_id,
+          username: payload.username,
+          roles: payload.roles || ["ROLE_USER"],
+        }
+      } catch (e) {
+        console.warn("Could not decode JWT token", e)
       }
-    } catch (e) {
-      console.warn("Could not decode JWT token", e)
     }
   }
 
-  return data
+  return data as AuthResponse
 }
 
 export type {
