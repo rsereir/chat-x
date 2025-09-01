@@ -12,4 +12,12 @@ declare global {
     owner: User;
     members?: User[];
   };
+
+  type ChatMessage = {
+    id: number;
+    room: Room;
+    author: User;
+    content: string;
+    at: number;
+  };
 }
