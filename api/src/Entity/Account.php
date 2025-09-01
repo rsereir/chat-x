@@ -3,7 +3,9 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Symfony\Action\NotFoundAction;
 use App\Repository\AccountRepository;
 use App\State\AccountProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -23,6 +25,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ApiResource(
     operations: [
+        new Get(
+            uriTemplate: '/accounts/{id}',
+            status: 404,
+            controller: NotFoundAction::class,
+            output: false,
+            read: false
+        ),
         new Post(
             uriTemplate: '/register',
             normalizationContext: ['groups' => ['accounts:token']],
@@ -36,10 +45,11 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['rooms:list', 'messages:list', 'rooms:view'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['accounts:register'])]
+    #[Groups(['accounts:register', 'rooms:list', 'messages:list', 'rooms:view'])]
     #[Assert\NotBlank(message: 'Username is required')]
     #[Assert\Length(
         min: 3,
