@@ -1,5 +1,5 @@
 import { SendOutlined } from "@ant-design/icons"
-import { Empty } from "antd"
+import { Empty, Form } from "antd"
 import { useEffect, useRef, useState } from "react"
 import useSWR from "swr"
 import Message from "@/components/message"
@@ -14,8 +14,8 @@ import { api } from "@/utils/api"
 export default function Chat() {
   const { user } = useAuth()
   const { currentRoom, currentRoomId } = useRoom()
-  const [composer, setComposer] = useState("")
   const [isLoading, setLoading] = useState(false)
+  const [form] = Form.useForm()
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const { data: messagesData, mutate } = useSWR(
@@ -45,20 +45,20 @@ export default function Chat() {
     }
   }, [messages.length])
 
-  const handleSendMessage = async () => {
-    if (!composer.trim() || !currentRoomId || !user || isLoading) {
+  const handleSendMessage = async (values: { content: string }) => {
+    if (!values.content?.trim() || !currentRoomId || !user || isLoading) {
       return
     }
 
     setLoading(true)
     try {
       await api.post("/messages", {
-        content: composer.trim(),
+        content: values.content.trim(),
         room: `/rooms/${currentRoomId}`,
         author: `/accounts/${user?.id}`,
       })
 
-      setComposer("")
+      form.resetFields()
       mutate()
     } catch (error) {
       console.error("Error sending message:", error)
@@ -128,13 +128,7 @@ export default function Chat() {
                 {messages.map((m) => (
                   <Message
                     key={m.id}
-                    message={{
-                      id: m.id,
-                      room: currentRoom,
-                      author: m.author,
-                      content: m.content,
-                      at: new Date(m.createdAt).getTime(),
-                    }}
+                    message={m}
                     isMine={m.author.username === user?.username}
                   />
                 ))}
@@ -151,7 +145,9 @@ export default function Chat() {
           background: "transparent",
         }}
       >
-        <div
+        <Form
+          form={form}
+          onFinish={handleSendMessage}
           style={{
             display: "grid",
             gridTemplateColumns: "1fr auto",
@@ -159,35 +155,43 @@ export default function Chat() {
             alignItems: "stretch",
           }}
         >
-          <Input.TextArea
-            value={composer}
-            onChange={(e) => setComposer(e.target.value)}
-            onPressEnter={(e) => {
-              if (!e.shiftKey) {
-                e.preventDefault()
-                handleSendMessage()
+          <Form.Item
+            name="content"
+            style={{ margin: 0 }}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: "Please enter a message",
+              },
+            ]}
+          >
+            <Input.TextArea
+              onPressEnter={(e) => {
+                if (!e.shiftKey) {
+                  e.preventDefault()
+                  form.submit()
+                }
+              }}
+              placeholder={
+                currentRoom ? "Your message..." : "Join a channel to write"
               }
-            }}
-            placeholder={
-              currentRoom ? "Your message..." : "Join a channel to write"
-            }
-            autoSize={{ minRows: 1, maxRows: 4 }}
-            disabled={!currentRoom || !user?.username?.trim() || isLoading}
-            style={{ resize: "none" }}
-          />
+              autoSize={{ minRows: 1, maxRows: 4 }}
+              disabled={!currentRoom || !user?.username?.trim() || isLoading}
+              style={{ resize: "none" }}
+            />
+          </Form.Item>
           <Button
             type="primary"
             icon={<SendOutlined />}
-            onClick={handleSendMessage}
+            htmlType="submit"
             loading={isLoading}
-            disabled={
-              !composer.trim() || !currentRoom || !user?.username?.trim()
-            }
+            disabled={!currentRoom || !user?.username?.trim()}
             style={{ height: "100%", alignSelf: "stretch" }}
           >
             Send
           </Button>
-        </div>
+        </Form>
       </div>
     </div>
   )

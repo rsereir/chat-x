@@ -28,7 +28,7 @@ export default function Message({ message, isMine }: MessageProps) {
       >
         <div style={{ marginBottom: 4 }}>
           <Text style={{ color: isMine ? "#e6f4ff" : "#64748b" }} strong>
-            {message.author?.username} · {dayjs(message.at).format("HH:mm")}
+            {message.author?.username} · {dayjs(new Date(message.createdAt).getTime()).format("HH:mm")}
           </Text>
         </div>
         <div>{message.content}</div>

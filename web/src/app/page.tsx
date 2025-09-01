@@ -71,7 +71,7 @@ export default function ChatPage() {
             <Rooms />
           </Sider>
           <Content>
-            <Chat username={user?.username} />
+            <Chat />
           </Content>
           <Sider
             width={280}
