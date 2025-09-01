@@ -1,4 +1,4 @@
-import { List, Space, Divider, App, Form } from "antd";
+import { List, Space, Divider, App, Form, Badge } from "antd";
 import useSWR from "swr";
 import Card from "@/components/ui/card";
 import Button from "@/components/ui/button";
@@ -6,15 +6,15 @@ import Input from "@/components/ui/input";
 import Tag from "@/components/ui/tag";
 import { PlusOutlined } from "@ant-design/icons";
 import { api, type ApiResponse } from "@/utils/api";
+import { useChannelNotifications } from "@/hooks/useChannelNotifications";
+import { useRoom } from "@/contexts/RoomContext";
+import { useAuth } from "@/hooks/useAuth";
 
-interface RoomsProps {
-  currentRoom: Room | null;
-  setCurrentRoom: (room: Room | null) => void;
-}
-
-export default function Rooms({ currentRoom, setCurrentRoom }: RoomsProps) {
+export default function Rooms() {
   const { message } = App.useApp();
   const [form] = Form.useForm();
+  const { user } = useAuth();
+  const { setCurrentRoomId, currentRoom } = useRoom();
 
   const { data, error, isLoading, mutate } = useSWR<ApiResponse<Room[]>>(
     "/rooms",
@@ -23,13 +23,51 @@ export default function Rooms({ currentRoom, setCurrentRoom }: RoomsProps) {
 
   const rooms = data?.data || [];
 
+  const { hasNotification, clearNotification } = useChannelNotifications(
+    currentRoom?.id.toString() || null
+  );
+
+  const handleSelectRoom = (room: Room) => {
+    clearNotification(room.id.toString());
+    setCurrentRoomId(room.id);
+  };
+
+  const handleJoinRoom = async (room: Room, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await api.patch(`/rooms/${room.id}/join`, {});
+      message.success(`Joined room "${room.name}"`);
+      mutate();
+    } catch (error) {
+      message.error("Failed to join room");
+    }
+  };
+
+  const handleLeaveRoom = async (room: Room, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await api.patch(`/rooms/${room.id}/leave`, {});
+      message.success(`Left room "${room.name}"`);
+      mutate();
+
+      if (currentRoom?.id === room.id) {
+        setCurrentRoomId(null);
+      }
+    } catch (error) {
+      message.error("Failed to leave room");
+    }
+  };
+
   const handleCreate = (values: { name: string }) => {
     const name = values.name.trim();
+
     if (!name) return;
-    if (rooms.some((r) => r.name === name)) {
+
+    if (rooms?.some((r) => r.name === name)) {
       message.info("Channel already exists.");
       return;
     }
+
     api
       .post<Room>("/rooms", { name })
       .then(() => mutate())
@@ -47,7 +85,7 @@ export default function Rooms({ currentRoom, setCurrentRoom }: RoomsProps) {
         title={
           <Space size={8}>
             <span>Channels</span>
-            <Tag color="blue">{rooms.length}</Tag>
+            <Tag color="blue">{rooms?.length}</Tag>
           </Space>
         }
         className="glass"
@@ -67,27 +105,53 @@ export default function Rooms({ currentRoom, setCurrentRoom }: RoomsProps) {
           dataSource={rooms}
           renderItem={(room) => {
             const isActive = currentRoom?.id === room.id;
-            const memberCount = room.members?.length || 0;
+            const hasNewMessage = hasNotification(room.id.toString());
+            const isOwner = user && room.owner && room.owner.id === user.id;
+            const isMember = user && room.members && room.members.some(member => member.id === user.id);
+
             return (
               <List.Item
                 actions={[
-                  <Tag key="count" color={isActive ? "blue" : "default"}>
-                    {memberCount} user(s)
-                  </Tag>,
-                  isActive ? (
-                    <Button key="leave" size="small" onClick={() => setCurrentRoom(null)}>
-                      Leave
-                    </Button>
-                  ) : (
-                    <Button key="join" size="small" type="primary" onClick={() => setCurrentRoom(room)}>
+                  <span key="member-count">
+                    {room.members?.length || 0} user(s)
+                  </span>,
+                  !isMember ? (
+                    <Button
+                      key="join"
+                      size="small"
+                      type="primary"
+                      onClick={(e) => handleJoinRoom(room, e)}
+                    >
                       Join
                     </Button>
+                  ) : (
+                    !isOwner ? (
+                      <Button
+                        key="leave"
+                        size="small"
+                        onClick={(e) => handleLeaveRoom(room, e)}
+                      >
+                        Leave
+                      </Button>
+                    ) : null
                   ),
-                ]}
+                ].filter(action => !!action)}
+                style={{
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleSelectRoom(room)}
               >
                 <Space wrap={false}>
-                  <Tag color={isActive ? "blue" : "default"}>#{room.name}</Tag>
-                  <span style={{ fontSize: "12px", color: "#666" }}>by {room.owner.username}</span>
+                  <Badge dot={hasNewMessage && !isActive}>
+                    <Tag color={isActive ? "blue" : "default"}>#{room.name}</Tag>
+                  </Badge>
+                  {hasNewMessage && !isActive && (
+                    <Tag color="red" size="small">
+                      new
+                    </Tag>
+                  )}
                 </Space>
               </List.Item>
             );
