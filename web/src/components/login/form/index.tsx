@@ -5,7 +5,8 @@ import { Form as AntdForm, App } from "antd"
 import { useState } from "react"
 import Button from "@/components/ui/button"
 import Input from "@/components/ui/input"
-import { login } from "@/utils/auth"
+import { setToken } from "@/utils/auth"
+import { api } from "@/utils/api"
 
 interface FormProps {
   onSuccess?: () => void
@@ -21,7 +22,15 @@ export default function Form({ onSuccess }: FormProps) {
   }) => {
     setLoading(true)
     try {
-      await login({ username: values.username, plainPassword: values.password })
+      const data = await api.post<{ token?: string }>("/login", {
+        username: values.username,
+        plainPassword: values.password,
+      })
+
+      if (data.token) {
+        setToken(data.token)
+      }
+
       message.success("Connected")
       onSuccess?.()
     } catch (error: unknown) {

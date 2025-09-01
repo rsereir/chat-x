@@ -5,7 +5,8 @@ import { Form as AntdForm, App } from "antd"
 import { useState } from "react"
 import Button from "@/components/ui/button"
 import Input from "@/components/ui/input"
-import { register } from "@/utils/auth"
+import { setToken } from "@/utils/auth"
+import { api } from "@/utils/api"
 
 interface FormProps {
   onSuccess?: () => void
@@ -21,16 +22,38 @@ export default function Form({ onSuccess }: FormProps) {
   }) => {
     setLoading(true)
     try {
-      await register({
+      const data = await api.post<{ token?: string }>("/register", {
         username: values.username,
         plainPassword: values.password,
       })
-      message.success("Welcome to ChatX, you're now logged in")
+
+      const token = data.token
+      if (token) {
+        setToken(token)
+      }
+
+      message.success("Welcome to ChatX !")
       onSuccess?.()
     } catch (error: unknown) {
-      const errorMsg =
-        (error as Error)?.message ||
-        "An error has occurred on account registration"
+      let errorMsg = "An error has occurred on account registration"
+
+      if (error instanceof Error) {
+        if (error.message.includes("violations")) {
+          try {
+            const errorData = JSON.parse(error.message)
+            if (errorData.violations) {
+              errorMsg = errorData.violations
+                .map((v: { message: string }) => v.message)
+                .join(", ")
+            }
+          } catch {
+            errorMsg = error.message
+          }
+        } else {
+          errorMsg = error.message
+        }
+      }
+
       message.error(errorMsg)
     } finally {
       setLoading(false)
