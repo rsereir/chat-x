@@ -18,7 +18,7 @@ export default function Members() {
     if (!currentRoom) return
 
     try {
-      await api.patch(`/rooms/${currentRoom.id}/kick/${userId}`)
+      await api.patch(`/rooms/${currentRoom.id}/kick?user=${userId}`)
       message.success("User removed from channel")
       mutate()
     } catch (error) {

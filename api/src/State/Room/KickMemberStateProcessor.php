@@ -22,8 +22,7 @@ final class KickMemberStateProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Room
     {
-        $memberId = (int) $uriVariables['memberId'];
-        $memberToKick = $this->accountRepository->find($memberId);
+        $memberToKick = $this->accountRepository->find($context['request']->attributes->get('_api_query_parameters')['user']);
 
         if (!$memberToKick) {
             throw new NotFoundHttpException('Member not found');
