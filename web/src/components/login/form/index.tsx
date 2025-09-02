@@ -59,7 +59,7 @@ export default function Form({ onSuccess }: FormProps) {
       <AntdForm.Item
         name="password"
         label="Password"
-        rules={[{ required: true, min: 4 }]}
+        rules={[{ required: true, min: 6 }]}
       >
         <Input.Password prefix={<LockOutlined />} placeholder="•••••••" />
       </AntdForm.Item>
