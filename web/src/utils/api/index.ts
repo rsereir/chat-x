@@ -68,7 +68,18 @@ class ApiClient {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        let errorMessage = `HTTP error! status: ${response.status}`
+
+        try {
+          const contentType = response.headers.get("Content-Type")
+          if (contentType?.includes("application/json")) {
+            const errorData = await response.json()
+            errorMessage = errorData.detail || errorData.message || errorMessage
+          }
+        } catch {
+        }
+
+        throw new Error(errorMessage)
       }
 
       const contentType = response.headers.get("Content-Type")
