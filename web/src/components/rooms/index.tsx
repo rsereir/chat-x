@@ -70,8 +70,9 @@ export default function Rooms() {
 
     api
       .post<Room>("/rooms", { name })
-      .then(() => mutate())
-      .then(() => {
+      .then((newRoom) => {
+        mutate()
+        setCurrentRoomId(newRoom.id)
         message.success(`Channel "${name}" created`)
         form.resetFields()
       })
