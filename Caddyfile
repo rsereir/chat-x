@@ -5,6 +5,34 @@
 :80 {
   encode zstd gzip
 
+  # Symfony profiler
+  handle /_profiler* {
+    reverse_proxy api:9000 {
+      transport fastcgi {
+        split .php
+
+        # ----- PHP container paths -----
+        env DOCUMENT_ROOT   /var/www/html/public
+        env SCRIPT_FILENAME /var/www/html/public/index.php
+        env SCRIPT_NAME     /index.php
+
+        # ----- request basics -----
+        env REQUEST_METHOD  {method}
+        env REQUEST_URI     {uri}
+        env QUERY_STRING    {query}
+        env CONTENT_TYPE    {header.Content-Type}
+        env CONTENT_LENGTH  {header.Content-Length}
+
+        # ----- proxy hints -----
+        env HTTP_HOST               {host}
+        env SERVER_NAME             {host}
+        env HTTP_X_FORWARDED_PROTO  {scheme}
+        env HTTP_X_FORWARDED_HOST   {host}
+        env HTTP_X_FORWARDED_PORT   {server_port}
+      }
+    }
+  }
+
   # API sous /api, Symfony sans prefix interne
   handle /api* {
     uri strip_prefix /api

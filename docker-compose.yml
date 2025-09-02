@@ -55,19 +55,11 @@ services:
 
 
   mercure:
-    image: dunglas/mercure:v0.15
-    platform: linux/amd64
-    environment:
-      MERCURE_PUBLISHER_JWT_KEY: "!ChangeMe!"
-      MERCURE_SUBSCRIBER_JWT_KEY: "!ChangeMe!"
-      MERCURE_EXTRA_DIRECTIVES: |
-        cors_allowed_origins *
-        anonymous
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/.well-known/mercure/healthz"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
+    image: node:20-alpine
+    working_dir: /app
+    command: node mercure-server.js
+    volumes:
+      - ./mercure-server.js:/app/mercure-server.js:ro
 
   caddy:
     image: caddy:2-alpine

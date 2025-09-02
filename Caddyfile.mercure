@@ -1,0 +1,19 @@
+{
+    auto_https off
+    order mercure after encode
+}
+
+:80 {
+    encode zstd gzip
+
+    mercure {
+        publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY}
+        subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY}
+        anonymous
+        cors_origins *
+    }
+
+    respond /health 200 {
+        body "OK"
+    }
+}
