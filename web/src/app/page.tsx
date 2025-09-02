@@ -1,15 +1,18 @@
 "use client"
 
 import { CheckCircleTwoTone, MessageOutlined } from "@ant-design/icons"
-import { Layout, Space, Typography } from "antd"
+import { Layout, Space, Spin, Typography } from "antd"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import Chat from "@/components/chat"
+import Loading from "@/components/loading"
 import Members from "@/components/members"
 import Rooms from "@/components/rooms"
 import Button from "@/components/ui/button"
 import Tag from "@/components/ui/tag"
 import { RoomProvider } from "@/contexts/RoomContext"
 import { useAuth } from "@/hooks/useAuth"
+import { useStylesLoaded } from "@/hooks/useStylesLoaded"
 import { isAuthenticated, logout } from "@/utils/auth"
 
 const { Header, Content, Sider } = Layout
@@ -18,15 +21,33 @@ const { Title } = Typography
 export default function ChatPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const [isHydrated, setIsHydrated] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const stylesLoaded = useStylesLoaded()
 
   const handleLogout = () => {
     logout()
     router.push("/auth")
   }
 
-  if (!isAuthenticated()) {
-    router.push("/auth")
-    return
+  useEffect(() => {
+    setIsHydrated(true)
+
+    const checkAuth = async () => {
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      if (!isAuthenticated()) {
+        router.push("/auth")
+      } else {
+        setIsCheckingAuth(false)
+      }
+    }
+
+    checkAuth()
+  }, [router])
+
+  if (!isHydrated || isCheckingAuth || !stylesLoaded) {
+    return <Loading />
   }
 
   return (

@@ -1,5 +1,5 @@
 import { PlusOutlined } from "@ant-design/icons"
-import { App, Badge, Divider, Form, List, Space } from "antd"
+import { App, Divider, Form, List, Space } from "antd"
 import useSWR from "swr"
 import Button from "@/components/ui/button"
 import Card from "@/components/ui/card"
@@ -25,7 +25,7 @@ export default function Rooms() {
   const rooms = data?.data || []
 
   const { hasNotification, clearNotification } = useChannelNotifications(
-    currentRoom?.id.toString() || null,
+    currentRoom?.id || null,
   )
 
   useRoomUpdates({
@@ -41,7 +41,7 @@ export default function Rooms() {
   })
 
   const handleSelectRoom = (room: Room) => {
-    clearNotification(room.id.toString())
+    clearNotification(room.id)
     setCurrentRoomId(room.id)
   }
 
@@ -49,6 +49,7 @@ export default function Rooms() {
     e.stopPropagation()
     try {
       await api.patch(`/rooms/${room.id}/join`, {})
+      clearNotification(room.id)
       message.success(`Joined room "${room.name}"`)
       mutate()
     } catch (_error) {
@@ -122,7 +123,7 @@ export default function Rooms() {
           dataSource={rooms}
           renderItem={(room) => {
             const isActive = currentRoom?.id === room.id
-            const hasNewMessage = hasNotification(room.id.toString())
+            const hasNewMessage = hasNotification(room.id)
             const isOwner = user && room.owner && room.owner.id === user.id
             const isMember =
               user &&
@@ -161,12 +162,10 @@ export default function Rooms() {
                 }}
                 onClick={() => handleSelectRoom(room)}
               >
-                <Space wrap={false}>
-                  <Badge dot={hasNewMessage && !isActive}>
-                    <Tag color={isActive ? "blue" : "default"}>
-                      #{room.name}
-                    </Tag>
-                  </Badge>
+                <Space wrap={false} align="center">
+                  <Tag color={isActive ? "blue" : "default"}>
+                    #{room.name}
+                  </Tag>
                   {hasNewMessage && !isActive && (
                     <Tag color="red">
                       new
