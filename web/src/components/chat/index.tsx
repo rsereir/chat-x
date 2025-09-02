@@ -73,9 +73,10 @@ export default function Chat() {
         display: "grid",
         gridTemplateRows: "1fr auto",
         height: "calc(100vh - 64px)",
+        maxHeight: "calc(100vh - 64px)",
       }}
     >
-      <div style={{ padding: 16, overflow: "hidden" }}>
+      <div style={{ padding: 16, overflow: "hidden", minHeight: 0 }}>
         <Card
           size="small"
           title={currentRoom ? `#${currentRoom?.name}` : "Welcome"}
@@ -98,6 +99,7 @@ export default function Chat() {
               overflowY: "auto",
               padding: 16,
               background: "transparent",
+              minHeight: 0,
             }}
           >
             {!currentRoom ? (
