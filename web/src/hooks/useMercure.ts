@@ -13,7 +13,7 @@ interface MercureMessage {
 
 export function useMercure({
   topic,
-  mercureUrl = "/.well-known/mercure",
+  mercureUrl,
 }: MercureHookOptions) {
   const [messages, setMessages] = useState<MercureMessage[]>([])
   const [lastMessage, setLastMessage] = useState<MercureMessage | null>(null)
@@ -21,7 +21,7 @@ export function useMercure({
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const url = new URL(mercureUrl, window.location.origin)
+    const url = new URL(mercureUrl || process.env.NEXT_PUBLIC_MERCURE_URL || "/.well-known/mercure", window.location.origin)
     url.searchParams.append("topic", topic)
 
     const eventSource = new EventSource(url.toString())

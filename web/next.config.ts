@@ -1,7 +1,9 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  env: {
+    NEXT_PUBLIC_MERCURE_URL: process.env.MERCURE_PUBLIC_URL || undefined,
+  },
 }
 
 export default nextConfig
