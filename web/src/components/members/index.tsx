@@ -18,7 +18,7 @@ export default function Members() {
     if (!currentRoom) return
 
     try {
-      await api.delete(`/rooms/${currentRoom.id}/kick/${userId}`)
+      await api.patch(`/rooms/${currentRoom.id}/kick/${userId}`)
       message.success("User removed from channel")
       mutate()
     } catch (error) {
@@ -69,11 +69,11 @@ export default function Members() {
                         ]
                       : undefined
                   }
+                  style={{ paddingLeft: 0, paddingRight: 0 }}
                 >
                   <Space size={4}>
                     <Avatar size="small" icon={<UserOutlined />} />
                     <Text strong={u?.id === user?.id}>{u?.username}</Text>
-                    {u?.id === user?.id ? <Tag color="blue">you</Tag> : null}
                     {isAdminUser ? <Tag color="gold">admin</Tag> : null}
                   </Space>
                 </List.Item>

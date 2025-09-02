@@ -33,8 +33,9 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             normalizationContext: ['groups' => ['rooms:view']]
         ),
-        new Delete(
+        new Patch(
             uriTemplate: '/rooms/{id}/kick/{memberId}',
+            normalizationContext: ['groups' => ['rooms:view']],
             security: "is_granted('ROLE_USER') and object.getOwner() == user",
             processor: KickMemberStateProcessor::class
         ),
