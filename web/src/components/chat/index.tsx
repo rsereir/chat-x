@@ -57,9 +57,15 @@ export default function Chat() {
         room: `/rooms/${currentRoomId}`,
         author: `/accounts/${user?.id}`,
       })
+      await mutate()
 
       form.resetFields()
-      mutate()
+
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+        }
+      }, 100)
     } catch (error) {
       console.error("Error sending message:", error)
     } finally {
