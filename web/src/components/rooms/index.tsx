@@ -8,13 +8,14 @@ import Tag from "@/components/ui/tag"
 import { useRoom } from "@/contexts/RoomContext"
 import { useAuth } from "@/hooks/useAuth"
 import { useChannelNotifications } from "@/hooks/useChannelNotifications"
+import { useRoomUpdates } from "@/hooks/useRoomUpdates"
 import { type ApiResponse, api } from "@/utils/api"
 
 export default function Rooms() {
   const { message } = App.useApp()
   const [form] = Form.useForm()
   const { user } = useAuth()
-  const { setCurrentRoomId, currentRoom } = useRoom()
+  const { setCurrentRoomId, currentRoom, mutate: mutateCurrentRoom } = useRoom()
 
   const { data, error, isLoading, mutate } = useSWR<ApiResponse<Room[]>>(
     "/rooms",
@@ -26,6 +27,18 @@ export default function Rooms() {
   const { hasNotification, clearNotification } = useChannelNotifications(
     currentRoom?.id.toString() || null,
   )
+
+  useRoomUpdates({
+    onNewRoom: () => {
+      mutate()
+    },
+    onMemberUpdate: (update) => {
+      mutate()
+      if (currentRoom && update.roomId === currentRoom.id) {
+        mutateCurrentRoom()
+      }
+    },
+  })
 
   const handleSelectRoom = (room: Room) => {
     clearNotification(room.id.toString())
