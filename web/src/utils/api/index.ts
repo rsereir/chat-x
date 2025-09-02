@@ -125,7 +125,7 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...options,
       method: "POST",
-      body: JSON.stringify(body),
+      body: JSON.stringify(body ?? {}),
     })
   }
 
@@ -137,7 +137,7 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...options,
       method: "PUT",
-      body: JSON.stringify(body),
+      body: JSON.stringify(body ?? {}),
     })
   }
 
@@ -153,7 +153,7 @@ class ApiClient {
         "Content-Type": "application/merge-patch+json",
         ...options?.headers,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body ?? {}),
     })
   }
 
