@@ -24,6 +24,10 @@ export default function Message({ message, isMine }: MessageProps) {
           borderRadius: 14,
           borderTopLeftRadius: isMine ? 14 : 4,
           borderTopRightRadius: isMine ? 4 : 14,
+          wordWrap: "break-word",
+          wordBreak: "break-word",
+          overflowWrap: "break-word",
+          hyphens: "auto",
         }}
       >
         <div style={{ marginBottom: 4 }}>
@@ -31,7 +35,16 @@ export default function Message({ message, isMine }: MessageProps) {
             {message.author?.username} · {dayjs(new Date(message.createdAt).getTime()).format("HH:mm")}
           </Text>
         </div>
-        <div>{message.content}</div>
+        <div 
+          style={{
+            whiteSpace: "pre-wrap",
+            wordWrap: "break-word",
+            wordBreak: "break-word",
+            overflowWrap: "break-word"
+          }}
+        >
+          {message.content}
+        </div>
       </div>
     </div>
   )

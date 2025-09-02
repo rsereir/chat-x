@@ -18,8 +18,10 @@ export default function Chat() {
   const [form] = Form.useForm()
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
+  const isMember = currentRoom && user && currentRoom.members?.some(member => member.id === user.id)
+
   const { data: messagesData, mutate } = useSWR(
-    currentRoomId ? `/messages?room=${currentRoomId}` : null,
+    currentRoomId && isMember ? `/messages?room=${currentRoomId}` : null,
     (url: string) => api.get<{ data: ChatMessage[] }>(url),
   )
 
@@ -27,12 +29,12 @@ export default function Chat() {
     topic: "/api/messages",
   })
 
-  const messages = (messagesData?.data || []).reverse()
+  const messages = (messagesData?.data || []).toReversed()
 
   useEffect(() => {
     if (lastMessage?.data && currentRoomId) {
       const newMessage = lastMessage.data as ChatMessage
-      if (newMessage.room.id === currentRoomId) {
+      if (newMessage.room?.id && newMessage.room.id === currentRoomId) {
         mutate()
       }
     }
@@ -44,6 +46,20 @@ export default function Chat() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [messages.length])
+
+  const handleJoinRoom = async () => {
+    if (!currentRoom || isLoading) return
+
+    setLoading(true)
+    try {
+      await api.patch(`/rooms/${currentRoom.id}/join`, {})
+      await mutate()
+    } catch (error) {
+      console.error("Error joining room:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSendMessage = async (values: { content: string }) => {
     if (!values.content?.trim() || !currentRoomId || !user || isLoading) {
@@ -87,10 +103,11 @@ export default function Chat() {
           size="small"
           title={currentRoom ? `#${currentRoom?.name}` : "Welcome"}
           className="glass glass-strong"
-          style={{ height: "100%" }}
+          style={{ height: "100%", display: "flex", flexDirection: "column" }}
           styles={{
             body: {
-              height: "100%",
+              flex: 1,
+              minHeight: 0,
               padding: 0,
               display: "flex",
               flexDirection: "column",
@@ -118,6 +135,31 @@ export default function Chat() {
               >
                 <Empty description="Choose or create a channel to start" />
               </div>
+            ) : !isMember ? (
+              <div
+                style={{
+                  height: "100%",
+                  display: "grid",
+                  placeItems: "center",
+                }}
+              >
+                <Empty
+                  description={
+                    <div style={{ textAlign: "center" }}>
+                      <p>You need to join #{currentRoom.name} to see messages</p>
+                      <Button
+                        type="primary"
+                        onClick={handleJoinRoom}
+                        loading={isLoading}
+                        style={{ marginTop: 16 }}
+                      >
+                        Join Channel
+                      </Button>
+                    </div>
+                  }
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
+              </div>
             ) : messages.length === 0 ? (
               <div
                 style={{
@@ -132,7 +174,14 @@ export default function Chat() {
                 />
               </div>
             ) : (
-              <div style={{ display: "grid", gap: 8 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gap: 8,
+                  width: "100%",
+                  minWidth: 0
+                }}
+              >
                 {messages.map((m) => (
                   <Message
                     key={m.id}
@@ -182,10 +231,12 @@ export default function Chat() {
                 }
               }}
               placeholder={
-                currentRoom ? "Your message..." : "Join a channel to write"
+                !currentRoom ? "Join a channel to write" :
+                !isMember ? "Join this channel to write" :
+                "Your message..."
               }
               autoSize={{ minRows: 1, maxRows: 4 }}
-              disabled={!currentRoom || !user?.username?.trim() || isLoading}
+              disabled={!currentRoom || !isMember || !user?.username?.trim() || isLoading}
               style={{ resize: "none" }}
             />
           </Form.Item>
@@ -194,7 +245,7 @@ export default function Chat() {
             icon={<SendOutlined />}
             htmlType="submit"
             loading={isLoading}
-            disabled={!currentRoom || !user?.username?.trim()}
+            disabled={!currentRoom || !isMember || !user?.username?.trim()}
             style={{ height: "100%", alignSelf: "stretch" }}
           >
             Send
