@@ -27,7 +27,7 @@ export default function Chat() {
     topic: "/api/messages",
   })
 
-  const messages = messagesData?.data || []
+  const messages = (messagesData?.data || []).reverse()
 
   useEffect(() => {
     if (lastMessage?.data && currentRoomId) {

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -20,6 +21,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriTemplate: '/messages',
             paginationItemsPerPage: 10,
             paginationMaximumItemsPerPage: 10,
+            order: ['createdAt' => 'DESC'],
             normalizationContext: ['groups' => ['messages:list']],
         ),
         new Get(),
@@ -27,6 +29,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['room' => 'exact'])]
+#[ApiFilter(OrderFilter::class, properties: ['createdAt' => 'DESC'])]
 class Message
 {
     #[ORM\Id]
