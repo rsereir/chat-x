@@ -8,12 +8,15 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Room;
 use App\Repository\AccountRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
 
 final class KickMemberStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private readonly PersistProcessor $decorator,
         private readonly AccountRepository $accountRepository,
+        private readonly HubInterface $mercureHub,
     ) {
     }
 
@@ -28,6 +31,31 @@ final class KickMemberStateProcessor implements ProcessorInterface
 
         $data->removeMember($memberToKick);
 
-        return $this->decorator->process($data, $operation, $uriVariables, $context);
+        $room = $this->decorator->process($data, $operation, $uriVariables, $context);
+
+        try {
+            $update = new Update(
+                '/api/rooms/members',
+                json_encode([
+                    'roomId' => $room->getId(),
+                    'roomName' => $room->getName(),
+                    'user' => [
+                        'id' => $memberToKick->getId(),
+                        'username' => $memberToKick->getUsername(),
+                    ],
+                    'action' => 'kicked',
+                    'members' => array_map(fn($member) => [
+                        'id' => $member->getId(),
+                        'username' => $member->getUsername(),
+                    ], $room->getMembers()->toArray()),
+                ])
+            );
+
+            $this->mercureHub->publish($update);
+        } catch (\Exception $e) {
+            error_log('Failed to send Mercure update for user being kicked from room: ' . $e->getMessage());
+        }
+
+        return $room;
     }
 }
