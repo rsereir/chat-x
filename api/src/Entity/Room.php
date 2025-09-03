@@ -49,8 +49,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/rooms/{id}/leave',
             normalizationContext: ['groups' => ['rooms:view']],
             security: "is_granted('ROLE_USER') and object.getOwner() != user",
-            read: true,
-            write: false,
             processor: LeaveStateProcessor::class,
         )
     ]

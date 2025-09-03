@@ -33,8 +33,8 @@ final class LeaveStateProcessor implements ProcessorInterface
                         'roomId' => $data->getId(),
                         'roomName' => $data->getName(),
                         'user' => [
-                            'id' => $data->getId(),
-                            'username' => $data->getUsername(),
+                            'id' => $user->getId(),
+                            'username' => $user->getUsername(),
                         ],
                         'action' => 'left',
                         'members' => array_map(fn($member) => [
