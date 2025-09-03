@@ -1,10 +1,11 @@
-import { CloseOutlined, UserOutlined } from "@ant-design/icons"
-import { App, Avatar, Empty, List, Space, Typography } from "antd"
+import { CloseOutlined } from "@ant-design/icons"
+import { App, Badge, Empty, List, Space, Typography } from "antd"
 import Button from "@/components/ui/button"
 import Card from "@/components/ui/card"
 import Tag from "@/components/ui/tag"
 import { useRoom } from "@/contexts/RoomContext"
 import { useAuth } from "@/hooks/useAuth"
+import { usePresence } from "@/hooks/usePresence"
 import { api } from "@/utils/api"
 
 const { Text } = Typography
@@ -13,6 +14,10 @@ export default function Members() {
   const { user } = useAuth()
   const { message } = App.useApp()
   const { currentRoom, mutate } = useRoom()
+  const { getUserPresence } = usePresence({
+    roomId: currentRoom?.id?.toString() || "",
+    enabled: !!currentRoom?.id,
+  })
 
   const handleKick = async (userId: string) => {
     if (!currentRoom) return
@@ -46,10 +51,24 @@ export default function Members() {
         {currentRoom ? (
           <List
             size="small"
-            dataSource={currentRoom?.members ?? []}
+            dataSource={currentRoom?.members
+              ?.slice()
+              ?.sort((a, b) => {
+                const aPresence = getUserPresence(a.id)
+                const bPresence = getUserPresence(b.id)
+                const aOnline = aPresence?.isOnline ?? false
+                const bOnline = bPresence?.isOnline ?? false
+                
+                if (aOnline === bOnline) {
+                  return a.username.localeCompare(b.username)
+                }
+                return bOnline ? 1 : -1
+              }) ?? []}
             renderItem={(u) => {
               const isAdminSelf = currentRoom?.owner?.id === user?.id
               const isAdminUser = currentRoom?.owner?.id === u?.id
+              const presence = getUserPresence(u.id)
+              const isOnline = presence?.isOnline ?? false
 
               return (
                 <List.Item
@@ -72,7 +91,7 @@ export default function Members() {
                   style={{ paddingLeft: 0, paddingRight: 0 }}
                 >
                   <Space size={4}>
-                    <Avatar size="small" icon={<UserOutlined />} />
+                    <Badge status={isOnline ? "success" : "default"} />
                     <Text strong={u?.id === user?.id}>{u?.username}</Text>
                     {isAdminUser ? <Tag color="gold">admin</Tag> : null}
                   </Space>
