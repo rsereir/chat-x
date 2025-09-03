@@ -175,6 +175,12 @@ platform variable:set --level=environment NAME value
 
 Before use Platform.sh CLI you need to configure your ssh keys on Platform.sh account and must be invited on the project
 
+## 7) Environment URLs
+
+- **Staging**: https://develop-sr3snxi-aapbhyeyq2qlu.fr-3.platformsh.site/
+- **Production**: https://main-bvxea6i-aapbhyeyq2qlu.fr-3.platformsh.site/
+- **Development (local)**: http://localhost
+
 References:
 - Platform.sh docs: https://docs.platform.sh/
 - Mercure: https://mercure.rocks/
