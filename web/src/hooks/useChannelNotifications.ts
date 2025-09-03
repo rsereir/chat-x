@@ -16,7 +16,7 @@ export function useChannelNotifications(currentRoomId: number | null) {
   })
 
   useEffect(() => {
-    if (lastMessage?.data && currentRoomId && lastMessage.id) {
+    if (lastMessage?.data && lastMessage.id) {
       if (lastMessageIdRef.current === lastMessage.id) {
         return
       }

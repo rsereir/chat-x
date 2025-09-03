@@ -1,5 +1,5 @@
 import { PlusOutlined } from "@ant-design/icons"
-import { App, Divider, Form, List, Space } from "antd"
+import {App, Badge, Divider, Form, List, Space} from "antd"
 import useSWR from "swr"
 import Button from "@/components/ui/button"
 import Card from "@/components/ui/card"
@@ -162,16 +162,14 @@ export default function Rooms() {
                 }}
                 onClick={() => handleSelectRoom(room)}
               >
-                <Space wrap={false} align="center">
-                  <Tag color={isActive ? "blue" : "default"}>
+                <Tag color={isActive ? "blue" : "default"}>
+                  <Space wrap={false} align="center" size={4}>
                     #{room.name}
-                  </Tag>
-                  {hasNewMessage && !isActive && (
-                    <Tag color="red">
-                      new
-                    </Tag>
-                  )}
-                </Space>
+                    {hasNewMessage && !isActive && (
+                      <Badge status="error" />
+                    )}
+                  </Space>
+                </Tag>
               </List.Item>
             )
           }}
