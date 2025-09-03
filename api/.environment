@@ -28,6 +28,6 @@ else
   MERCURE_ROUTE=$(echo $PLATFORM_ROUTES_DECODED | jq -r 'to_entries[] | select(.value.id == "mercure") | .key')
 fi
 
-export MERCURE_URL="${MERCURE_ROUTE}.well-known/mercure"
-export MERCURE_PUBLIC_URL="${MERCURE_ROUTE}.well-known/mercure"
-export MERCURE_PUBLISH_URL="${MERCURE_ROUTE}.well-known/mercure"
+export MERCURE_URL="${MERCURE_ROUTE}"
+export MERCURE_PUBLIC_URL="${MERCURE_ROUTE}"
+export MERCURE_PUBLISH_URL="${MERCURE_ROUTE}"

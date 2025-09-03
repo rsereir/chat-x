@@ -125,7 +125,7 @@ mercure:
       SERVER_NAME: ":8888"
       MERCURE_TRANSPORT_URL: "bolt:///var/run/mercure.db"
       MERCURE_EXTRA_DIRECTIVES: |
-        cors_origin *
+        cors_origins *
         publish_origins *
         subscriptions
         demo

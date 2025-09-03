@@ -24,6 +24,9 @@ services:
     environment:
       APP_ENV: dev
       DATABASE_URL: postgresql://symfony:symfony@db:5432/app?serverVersion=13&charset=utf8
+      MERCURE_URL: http://mercure/.well-known/mercure
+      MERCURE_PUBLIC_URL: http://mercure/.well-known/mercure
+      MERCURE_JWT_SECRET: "!ChangeMe!"
     volumes:
       - ./api:/var/www/html:cached
     depends_on:
