@@ -4,9 +4,11 @@ import { MessageOutlined } from "@ant-design/icons"
 import { Layout, Space, Tabs, Typography } from "antd"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import Loading from "@/components/loading"
 import LoginForm from "@/components/login/form"
 import RegisterForm from "@/components/register/form"
 import Card from "@/components/ui/card"
+import { useStylesLoaded } from "@/hooks/useStylesLoaded"
 import { isAuthenticated } from "@/utils/auth"
 
 const { Header, Content } = Layout
@@ -15,8 +17,12 @@ const { Title } = Typography
 export default function AuthPage() {
   const router = useRouter()
   const [authTab, setAuthTab] = useState<"login" | "signup">("login")
+  const [isHydrated, setIsHydrated] = useState(false)
+  const stylesLoaded = useStylesLoaded()
 
   useEffect(() => {
+    setIsHydrated(true)
+    
     if (isAuthenticated()) {
       router.push("/")
     }
@@ -24,6 +30,10 @@ export default function AuthPage() {
 
   const handleSuccess = () => {
     router.push("/")
+  }
+
+  if (!isHydrated || !stylesLoaded) {
+    return <Loading />
   }
 
   return (
